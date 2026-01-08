@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "instanceId": "n8n-instance"
+  },
+  "nodes": [
+    {
+      "id": "WebhookImport",
+      "name": "Webhook AI Import",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        200,
+        200
+      ],
+      "parameters": {
+        "path": "ai-import-aut",
+        "responseMode": "lastNode",
+        "httpMethod": "POST"
+      }
+    },
+    {
+      "id": "SetPromptImport",
+      "name": "Zbuduj prompt AI",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        400,
+        200
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "`U\u017cytkownik chce sprowadzi\u0107 auto z zagranicy. Marka i model: ${$json.markaModel}. Kraj importu: ${$json.kraj}. Bud\u017cet: ${$json.budzet} z\u0142. Twoim zadaniem jest: \\n1. Oceni\u0107 czy warto sprowadza\u0107 ten model z wybranego kraju\\n2. Poda\u0107 realne koszty importu (transport, akcyza, op\u0142aty)\\n3. Ostrzec przed potencjalnymi zagro\u017ceniami (np. cofni\u0119te liczniki, rdza, zani\u017cona warto\u015b\u0107)\\n4. Podpowiedzie\u0107 gdzie najlepiej szuka\u0107 tego auta (np. portale og\u0142oszeniowe, domy aukcyjne)\\n5. Da\u0107 ko\u0144cowe podsumowanie \u2013 czy si\u0119 op\u0142aca. Odpowiadaj zwi\u0119\u017ale, konkretnie, po polsku.`",
+              "rawValue": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ImportAI",
+      "name": "AI - Import Aut",
+      "type": "n8n-nodes-base.openAiAssistantMessage",
+      "typeVersion": 1,
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "assistantId": "asst_REPLACE_ME",
+        "threadId": "",
+        "prompt": {
+          "mode": "define",
+          "text": "{{$json.message}}"
+        }
+      },
+      "credentials": {
+        "openAIAssistantToken": {
+          "id": "openai-token",
+          "name": "My OpenAI Token"
+        }
+      }
+    },
+    {
+      "id": "ExtractAIResultImport",
+      "name": "Wyci\u0105gnij odpowied\u017a AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        800,
+        200
+      ],
+      "parameters": {
+        "language": "javascript",
+        "code": "const steps = $json.run?.steps;\nconst content = steps?.[0]?.step_details?.message?.content;\nreturn [{ json: { analiza_importu: content || \"Brak odpowiedzi od AI\" } }];"
+      }
+    },
+    {
+      "id": "RespondImport",
+      "name": "Zwr\u00f3\u0107 odpowied\u017a",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        200
+      ],
+      "parameters": {
+        "responseData": "lastNode",
+        "responseCode": 200
+      }
+    }
+  ],
+  "connections": {
+    "Webhook AI Import": {
+      "main": [
+        [
+          {
+            "node": "Zbuduj prompt AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zbuduj prompt AI": {
+      "main": [
+        [
+          {
+            "node": "AI - Import Aut",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Import Aut": {
+      "main": [
+        [
+          {
+            "node": "Wyci\u0105gnij odpowied\u017a AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wyci\u0105gnij odpowied\u017a AI": {
+      "main": [
+        [
+          {
+            "node": "Zwr\u00f3\u0107 odpowied\u017a",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "name": "AI Import Aut z zagranicy",
+  "tags": [],
+  "versionId": "1"
+}

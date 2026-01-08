@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "instanceId": "n8n-instance"
+  },
+  "nodes": [
+    {
+      "id": "WebhookInput",
+      "name": "Webhook motobilans",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "path": "motobilans",
+        "responseMode": "lastNode",
+        "httpMethod": "POST"
+      }
+    },
+    {
+      "id": "SetMessage",
+      "name": "Zbuduj wiadomo\u015b\u0107",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "mode": "json",
+        "json": {
+          "message": "Model: {{$json.model}}, Silnik: {{$json.silnik}}, Styl jazdy: {{$json.styl}}, Przebieg: {{$json.przebieg}} km"
+        }
+      }
+    },
+    {
+      "id": "MessageAI",
+      "name": "AI - Message Assistant",
+      "type": "n8n-nodes-base.openAiAssistantMessage",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ],
+      "parameters": {
+        "assistantId": "asst_REPLACE_ME",
+        "threadId": ""
+      },
+      "credentials": {
+        "openAIAssistantToken": {
+          "id": "openai-token",
+          "name": "My OpenAI Token"
+        }
+      }
+    },
+    {
+      "id": "SetResponseFixed",
+      "name": "Wyci\u0105gnij odpowied\u017a (expression)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "wynik",
+              "value": "$json.run.steps[0].step_details.message.content",
+              "rawValue": true
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook motobilans": {
+      "main": [
+        [
+          {
+            "node": "Zbuduj wiadomo\u015b\u0107",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zbuduj wiadomo\u015b\u0107": {
+      "main": [
+        [
+          {
+            "node": "AI - Message Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Message Assistant": {
+      "main": [
+        [
+          {
+            "node": "Wyci\u0105gnij odpowied\u017a (expression)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "name": "motobilans-final-expression",
+  "tags": [],
+  "versionId": "1"
+}

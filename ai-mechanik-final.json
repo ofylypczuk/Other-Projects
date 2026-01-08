@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "instanceId": "n8n-instance"
+  },
+  "nodes": [
+    {
+      "id": "WebhookMechanik",
+      "name": "Webhook AI Mechanik",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        200,
+        200
+      ],
+      "parameters": {
+        "path": "ai-mechanik",
+        "responseMode": "lastNode",
+        "httpMethod": "POST"
+      }
+    },
+    {
+      "id": "SetPromptMechanik",
+      "name": "Zbuduj prompt AI",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        400,
+        200
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "`U\u017cytkownik zg\u0142asza nast\u0119puj\u0105ce objawy w aucie: ${$json.objawy}. Model auta: ${$json.model}. Styl jazdy: ${$json.styl}. Na podstawie tych danych wska\u017c mo\u017cliwe przyczyny usterki, prawdopodobn\u0105 diagnoz\u0119, oraz orientacyjny koszt naprawy w Polsce. Podaj 3 najcz\u0119stsze mo\u017cliwo\u015bci i podsumowanie. Odpowiadaj zwi\u0119\u017ale, konkretnie i po polsku.`",
+              "rawValue": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "MechanikAI",
+      "name": "AI - Mechanik",
+      "type": "n8n-nodes-base.openAiAssistantMessage",
+      "typeVersion": 1,
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "assistantId": "asst_REPLACE_ME",
+        "threadId": "",
+        "prompt": {
+          "mode": "define",
+          "text": "{{$json.message}}"
+        }
+      },
+      "credentials": {
+        "openAIAssistantToken": {
+          "id": "openai-token",
+          "name": "My OpenAI Token"
+        }
+      }
+    },
+    {
+      "id": "ExtractAIResult",
+      "name": "Wyci\u0105gnij odpowied\u017a AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        800,
+        200
+      ],
+      "parameters": {
+        "language": "javascript",
+        "code": "const steps = $json.run?.steps;\nconst content = steps?.[0]?.step_details?.message?.content;\nreturn [{ json: { diagnoza: content || \"Brak odpowiedzi od AI\" } }];"
+      }
+    },
+    {
+      "id": "RespondToHTML",
+      "name": "Zwr\u00f3\u0107 odpowied\u017a",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        200
+      ],
+      "parameters": {
+        "responseData": "lastNode",
+        "responseCode": 200
+      }
+    }
+  ],
+  "connections": {
+    "Webhook AI Mechanik": {
+      "main": [
+        [
+          {
+            "node": "Zbuduj prompt AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zbuduj prompt AI": {
+      "main": [
+        [
+          {
+            "node": "AI - Mechanik",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Mechanik": {
+      "main": [
+        [
+          {
+            "node": "Wyci\u0105gnij odpowied\u017a AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wyci\u0105gnij odpowied\u017a AI": {
+      "main": [
+        [
+          {
+            "node": "Zwr\u00f3\u0107 odpowied\u017a",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "name": "AI Mechanik - Zaawansowany",
+  "tags": [],
+  "versionId": "1"
+}

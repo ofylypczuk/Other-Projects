@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "instanceId": "n8n-instance"
+  },
+  "nodes": [
+    {
+      "id": "WebhookAdvisor",
+      "name": "Webhook AI Doradca",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        200,
+        200
+      ],
+      "parameters": {
+        "path": "ai-doradca-auto",
+        "responseMode": "lastNode",
+        "httpMethod": "POST"
+      }
+    },
+    {
+      "id": "SetPromptAdvisor",
+      "name": "Zbuduj prompt AI",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        400,
+        200
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "`U\u017cytkownik szuka samochodu. Bud\u017cet: ${$json.budzet} z\u0142. Przeznaczenie: ${$json.przeznaczenie}. Preferencje: nap\u0119d \u2013 ${$json.naped}, skrzynia \u2013 ${$json.skrzynia}, typ auta \u2013 ${$json.typ}. Dorad\u017a 3 konkretne modele, kt\u00f3re b\u0119d\u0105 najlepsze w tej kategorii. Podaj orientacyjne ceny rynkowe, roczne koszty eksploatacji i uzasadnij wyb\u00f3r. Odpowiadaj po polsku, konkretnie, jak profesjonalny doradca motoryzacyjny.`",
+              "rawValue": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "AIAdvisor",
+      "name": "AI - Doradca",
+      "type": "n8n-nodes-base.openAiAssistantMessage",
+      "typeVersion": 1,
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "assistantId": "asst_REPLACE_ME",
+        "threadId": "",
+        "prompt": {
+          "mode": "define",
+          "text": "{{$json.message}}"
+        }
+      },
+      "credentials": {
+        "openAIAssistantToken": {
+          "id": "openai-token",
+          "name": "My OpenAI Token"
+        }
+      }
+    },
+    {
+      "id": "ExtractResultAdvisor",
+      "name": "Wyci\u0105gnij odpowied\u017a AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        800,
+        200
+      ],
+      "parameters": {
+        "language": "javascript",
+        "code": "const steps = $json.run?.steps;\nconst content = steps?.[0]?.step_details?.message?.content;\nreturn [{ json: { propozycja: content || \"Brak odpowiedzi od AI\" } }];"
+      }
+    },
+    {
+      "id": "RespondAdvisor",
+      "name": "Zwr\u00f3\u0107 odpowied\u017a",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        200
+      ],
+      "parameters": {
+        "responseData": "lastNode",
+        "responseCode": 200
+      }
+    }
+  ],
+  "connections": {
+    "Webhook AI Doradca": {
+      "main": [
+        [
+          {
+            "node": "Zbuduj prompt AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zbuduj prompt AI": {
+      "main": [
+        [
+          {
+            "node": "AI - Doradca",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Doradca": {
+      "main": [
+        [
+          {
+            "node": "Wyci\u0105gnij odpowied\u017a AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wyci\u0105gnij odpowied\u017a AI": {
+      "main": [
+        [
+          {
+            "node": "Zwr\u00f3\u0107 odpowied\u017a",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "name": "AI Doradca Samochodowy",
+  "tags": [],
+  "versionId": "1"
+}
