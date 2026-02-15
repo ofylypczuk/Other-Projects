@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Heart is Yours! ❤️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;700&family=Pacifico&display=swap');
+
+        :root {
+            --primary: #ff4d6d;
+            --secondary: #ff8fa3;
+            --bg: #fff0f3;
+            --glass: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #ff9a9e 0%, #fad0c4 99%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+            color: #fff;
+        }
+
+        /* Animated Background Particles */
+        .bg-particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: float 10s infinite linear;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(110vh) scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-10vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Glassmorphism Container */
+        .card {
+            background: var(--glass);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            z-index: 10;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            color: #fff;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(45deg, #ff4d6d, #ff8fa3);
+            border: none;
+            padding: 15px 30px;
+            color: white;
+            font-size: 1.2rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 77, 109, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Quiz Options */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid white;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        /* Hidden Sections */
+        .hidden {
+            display: none;
+            opacity: 0;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hearts Explosion */
+        .heart-confetti {
+            position: absolute;
+            font-size: 20px;
+            animation: fall 3s linear forwards;
+            z-index: 100;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+
+        .dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Particles -->
+    <div id="particles"></div>
+
+    <div class="card fade-in" id="card-content">
+        <!-- Intro Screen -->
+        <div id="screen-intro">
+            <h1>You Unlocked My Heart! 🔓❤️</h1>
+            <p>But to keep it, you must answer a few important questions...</p>
+            <button class="btn" onclick="startQuiz()">I'm Ready!</button>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="screen-quiz" class="hidden">
+            <div class="progress-dots" id="progress">
+                <!-- Dots generated by JS -->
+            </div>
+            <h2 id="question-text">Question goes here?</h2>
+            <div class="options" id="options-container">
+                <!-- Options generated by JS -->
+            </div>
+        </div>
+
+        <!-- Finale Screen -->
+        <div id="screen-finale" class="hidden">
+            <h1>It's a Match! 💏</h1>
+            <p>You are officially my Valentine.</p>
+            <p id="result-summary" style="font-size: 1rem; opacity: 0.9; margin-top: -10px;"></p>
+            <div style="font-size: 4rem; margin: 20px;">🥰</div>
+            <button class="btn" onclick="celebrateMore()">Yay! More Hearts!</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const questions = [
+            {
+                q: "What are we doing tonight?",
+                options: [
+                    "Netflix & Cuddle 🎬",
+                    "Romantic Dinner 🍝",
+                    "Stargazing ✨",
+                    "Surprise me! 🎁"
+                ]
+            },
+            {
+                q: "How much do you love me?",
+                options: [
+                    "To the moon and back 🌙",
+                    "More than pizza 🍕",
+                    "3000 🦾",
+                    "Infinity & Beyond 🚀"
+                ]
+            },
+            {
+                q: "One last thing...",
+                options: [
+                    "Kiss me now! 💋",
+                    "Hug me tight! 🤗",
+                    "Hold my hand 🤝",
+                    "All of the above! ❤️"
+                ]
+            }
+        ];
+
+        let currentQ = 0;
+        let answers = [];
+
+        // --- Background Particles ---
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.classList.add('bg-particle');
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.width = p.style.height = (Math.random() * 20 + 5) + 'px';
+                p.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                p.style.animationDelay = (Math.random() * 5) + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        // --- Quiz Logic ---
+        function startQuiz() {
+            switchScreen('screen-intro', 'screen-quiz');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('question-text').innerText = q.q;
+
+            const opts = document.getElementById('options-container');
+            opts.innerHTML = '';
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectAnswer(opt);
+                opts.appendChild(btn);
+            });
+
+            // Update dots
+            const dots = document.getElementById('progress');
+            dots.innerHTML = '';
+            questions.forEach((_, idx) => {
+                const d = document.createElement('div');
+                d.className = 'dot ' + (idx === currentQ ? 'active' : '');
+                if (idx < currentQ) d.style.background = 'white';
+                dots.appendChild(d);
+            });
+        }
+
+        function selectAnswer(ans) {
+            answers.push(ans);
+            explodeHearts(10);
+
+            if (currentQ < questions.length - 1) {
+                currentQ++;
+                // Fade effect
+                const container = document.getElementById('screen-quiz');
+                container.style.opacity = '0';
+                setTimeout(() => {
+                    loadQuestion();
+                    container.style.opacity = '1';
+                }, 300);
+            } else {
+                showFinale();
+            }
+        }
+
+        function showFinale() {
+            switchScreen('screen-quiz', 'screen-finale');
+            explodeHearts(50);
+
+            // Generate fun summary
+            const summary = `We are doing <b>${answers[0]}</b>, you love me <b>${answers[1]}</b>, and we will do <b>${answers[2]}</b>!`;
+            document.getElementById('result-summary').innerHTML = summary;
+        }
+
+        function switchScreen(fromId, toId) {
+            document.getElementById(fromId).classList.add('hidden');
+            const to = document.getElementById(toId);
+            to.classList.remove('hidden');
+            to.classList.add('fade-in');
+        }
+
+        // --- Effects ---
+        function celebrateMore() {
+            explodeHearts(30);
+        }
+
+        function explodeHearts(amount) {
+            for (let i = 0; i < amount; i++) {
+                const h = document.createElement('div');
+                h.classList.add('heart-confetti');
+                h.innerText = ['❤️', '💖', '💝', '💕', '💗'][Math.floor(Math.random() * 5)];
+                h.style.left = Math.random() * 100 + 'vw';
+                h.style.top = '-50px';
+                h.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                h.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                document.body.appendChild(h);
+
+                setTimeout(() => h.remove(), 4000);
+            }
+        }
+    </script>
+</body>
+
+</html>
